@@ -7,7 +7,11 @@ var StartWithSearch = {
      */
     parseUrl: function(url) {
         var queryString = /^[^#?]*(\?[^#]+|)/.exec(url)[1];
-        return this.getParameterByName(queryString, 'q');
+        if (this.getParameterByName(queryString, 'form') == 'WNSGPH') {
+            return this.getParameterByName(queryString, 'q');
+        } else {
+            return;
+        }
     },
     /**
      * Gets the paramter value from the query string
@@ -26,20 +30,20 @@ var StartWithSearch = {
      */
     redirectSearch: function(url) {
         var searchTerm = this.parseUrl(url);
-        chrome.tabs.update(null, {
-            url: "http://www.google.com/search?q=" + searchTerm
-        });
-        chrome.storage.sync.get('count', function(object) {
-            chrome.storage.sync.set({
-                'count': object.count + 1
-            }, function() {
-                chrome.browserAction.setBadgeText({
-                    text: '' + (object.count + 1)
+        if (searchTerm) {
+            chrome.tabs.update(null, {
+                url: "http://www.google.com/search?q=" + searchTerm
+            });
+            chrome.storage.sync.get('count', function(object) {
+                chrome.storage.sync.set({
+                    'count': object.count + 1
+                }, function() {
+                    chrome.browserAction.setBadgeText({
+                        text: '' + (object.count + 1)
+                    });
                 });
             });
-
-        });
-
+        };
     },
     isBing: function(tab) {
         return tab.url.indexOf('www.bing') > -1
